@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>pieLogic</title>
+	<meta charset="UTF-8">
+	<link rel="stylesheet" href="static/css/pieLogic.css">
+	<link rel="shortcut icon" href="static/img/favicon.ico">
+	<script src="static/js/lib/d3.min.js"></script>
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+</head>
+<body>
+
+<div id="status-msg"><p>Click on a project's pie to get started<p></div>
+<div id="optim-form">
+	<span><button id="reset-btn" type="button" class="menu-btn">Reset</button></span>
+	<span><button id="optim-btn" type="button" class="menu-btn">Optimize</button></span>
+</div>
+<div id="req-res"></div>
+
+<div>
+    <span id="chart-controls"><table id="rangebox"><tbody></tbody></table></span>
+    <span id="pies"></span>
+</div>
+<div>
+	<span id="employee-table"><table id="emptab"><tbody></tbody></table></span>
+	<span id="project-table"><table id="projtab"><tbody></tbody></table></span>
+</div>
+
+<script type="text/javascript">
+	var init = {{ initdata | tojson }}
+</script>
+<script type="text/javascript" src="static/js/pieLogicOpt.js"></script>
+
+
+</body>
+</html>
