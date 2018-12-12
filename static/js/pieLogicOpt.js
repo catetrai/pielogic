@@ -55,7 +55,7 @@ const employees = [
 
 const projects = [
 	{
-		name: "MeeIntranet",
+		name: "Proj-A",
 		prtID: "0449",
 		skills: ["Atlassian"],
 		budget: 1000,
@@ -64,7 +64,7 @@ const projects = [
 		lead: ["consult.jan"]
 	},
 	{
-		name: "RD/IM",
+		name: "Proj-B",
 		prtID: "0584",
 		skills: ["Atlassian", "JavaScript"],
 		budget: 2000,
@@ -73,7 +73,7 @@ const projects = [
 		lead: ["consult.jan"]
 	},
 	{
-		name: "PRT",
+		name: "Proj-C",
 		prtID: "9999",
 		skills: ["JavaScript", "php", "SQL"],
 		budget: 800,
@@ -297,13 +297,19 @@ function moveSlider() {
 		      contentType: "application/json",
         	  dataType: 'json',
 		      success: function(response) {
-		      	console.log("Success!");
-        		projEmplMap = createProjEmplMap(response);
-				oldValues = getProjectData(projEmplMap, currentProj);
-				updatePies();
-				updateSliders();
-				// printEmployeeTable()
-				setStatusMsg();
+		      	if ( response.length ) {
+		      		$("#req-res").html("<br>")
+			      	console.log("Success!");
+	        		projEmplMap = createProjEmplMap(response);
+					oldValues = getProjectData(projEmplMap, currentProj);
+					updatePies();
+					updateSliders();
+					// printEmployeeTable()
+					setStatusMsg();
+				} else {
+					$("#req-res").html(`Sorry, ${currentEmpl} does not have the skillz for this project!`)
+				}
+
 		      },
 		      error: function(xhr) {
 		      	$("#req-res").html("Could not retrieve response!")
@@ -323,8 +329,9 @@ function setStatusMsg() {
 		statusMsgStr = "Within Budget";
 		statusMsgColor = "green";
 	}
-	$( "#status-msg" ).html(`<p>${getProjObj(currentProj).name}: <span>${statusMsgStr}</span></p>`);
-	$( "#status-msg span" ).css("color", statusMsgColor);
+	// $( "#status-msg" ).html(`<p>${getProjObj(currentProj).name}: <span>${statusMsgStr}</span></p>`);
+	// $( "#status-msg span" ).css("color", statusMsgColor);
+	$( "#status-msg" ).html("<p><br></p>")
 }
 
 function filterMapByValue(map, func) {
@@ -334,173 +341,6 @@ function filterMapByValue(map, func) {
 	return map;
 }
 
-function slideData() {
-	var temp = new Map(projEmplMap),
-		compensatorEmpl = "",
-		compensatorProj = "",
-		excludedEmpl = [];
-		excludedProj = [];
-		exclEmpl = [],
-		exclProj = [],
-		isValid = undefined,
-		unitIncr = Math.sign(delta);
-		recursDepth = 0;
-
-	// Simulate consequences of increment using temporary map
-	for ( var i = 0; i < Math.abs(delta); i++ ) {
-		recursDepth = 0;
-		exclEmpl = [currentEmpl];
-		exclProj = [currentProj];
-		// Change current employee in current project
-		isValid = addDelta(currentEmpl, currentProj, unitIncr);
-		if ( !(isValid) ) { 
-			addDelta(currentEmpl, currentProj, -unitIncr);
-			break;
-		}
-		doUnitSlide(currentEmpl, currentProj, unitIncr);
-	}
-	return temp;
-
-	
-	function doUnitSlide(currentEmpl, currentProj, unitIncr) {
-		recursDepth++;
-		console.log(`${recursDepth} - ${currentEmpl}, ${getProjObj(currentProj).name}`);
-		excludedEmpl = [];
-		excludedProj = [];
-
-		excludedEmpl = excludedEmpl.concat(exclEmpl);
-		excludedProj = excludedProj.concat(exclProj);
-
-		isValid = undefined;
-		//if ( recursDepth !== 2 ) {
-		if ( sum(Array.from(temp.get(currentProj).values())) !==
-			sum(Array.from(projEmplMap_original.get(currentProj).values())) ) {
-		// Re-scale another employee in current project
-		while ( !(isValid) && [...new Set(excludedEmpl)].length < temp.get(currentProj).size )  {
-			console.log(excludedEmpl);
-			compensatorEmpl = getCompensatorEmpl(currentEmpl, currentProj, unitIncr);
-			console.log("compensatorEmpl = " + compensatorEmpl)
-			if ( compensatorEmpl ) {
-				excludedEmpl.push(compensatorEmpl);
-				isValid = addDelta(compensatorEmpl, currentProj, -unitIncr);
-			} else { break; }
-		}
-		// If no valid compensEmpl found, undo move for (currEmpl,currProj)
-		if ( !(isValid) ) {
-			addDelta(currentEmpl, currentProj, -unitIncr);
-			console.log("! Undid user input move !")
-			i = Math.abs(delta);
-			return isValid;
-		}
-	}
-
-		// Re-scale current employee in other projects
-		isValid = undefined;
-		while ( !(isValid) && [...new Set(excludedProj)].length < temp.size )  {
-			console.log(excludedProj);
-			compensatorProj = getCompensatorProj(currentEmpl, currentProj, unitIncr);
-			console.log("compensatorProj = " + compensatorProj)
-			if ( compensatorProj ) {
-				excludedProj.push(compensatorProj);
-				isValid = addDelta(currentEmpl, compensatorProj, -unitIncr);
-			} else { break; }
-		}
-		// If no valid compensProj found, undo move for (currEmpl,currProj)
-		// 	AND for (compensEmpl,currProj)
-		if ( !(isValid) ) {
-			addDelta(compensatorEmpl, currentProj, unitIncr);
-			addDelta(currentEmpl, currentProj, -unitIncr);
-			console.log("! Undid user input move and fEmpl !")
-			i = Math.abs(delta);
-			return isValid;
-		}
-
-		// Run function recursively on other changed employees and projects
-		//exclEmpl.push(compensatorEmpl);
-		//exclProj.push(compensatorProj);
-		if ( recursDepth < 10 ) {
-		if ( sum(Array.from(temp.get(currentProj).values())) !==
-			sum(Array.from(projEmplMap_original.get(currentProj).values())) ) {
-			console.log("*** Recursing into fEmpl");
-			doUnitSlide(compensatorEmpl, currentProj, -unitIncr);
-		}
-		if ( sum(Array.from(temp.get(compensatorProj).values())) !==
-			sum(Array.from(projEmplMap_original.get(compensatorProj).values())) ) {
-			console.log("*** Recursing into fProj");
-			doUnitSlide(currentEmpl, compensatorProj, -unitIncr);
-		}
-		}	
-		
-		isValid = true;
-		return isValid;
-	}
-
-	function isAllowed(empl, proj, delta) {
-		if ( empl && proj ) {
-			var oldVal = temp.get(proj).get(empl);
-			var newVal = oldVal + delta;
-			if ( !(newVal) || newVal < 1 || newVal > getMaxPTForProj(proj) ) { return false; }
-			else { return true; }
-		}
-		return false;
-	}
-
-	function addDelta(empl, proj, delta) {
-		var oldVal;
-		if ( isAllowed(empl, proj, delta) ) {
-			oldVal = temp.get(proj).get(empl);
-			temp.get(proj).set(empl, oldVal + delta);
-			return true;
-		}
-		return false;
-	}
-
-	function getCompensatorEmpl(currEmpl, currProj, delta) {
-		// Minimum PT value is 1, maximum is (totalPT-nEmpl).
-		// In case of ties, will pick the candidate listed first in the map.
-		// !! TODO !! resolve the tie based on optimizing budget!
-		var candVals = [],
-			compensatorIx = null,
-			candidates = new Map(temp.get(currProj));
-		candidates.delete(currEmpl);
-		excludedEmpl.forEach( function(d) { candidates.delete(d); } );
-		if ( delta > 0 ) {
-			filterMapByValue(candidates, a => a > 1 );
-			candVals = Array.from( candidates.values() );
-			compensatorIx = candVals.indexOf( Math.max(...candVals) );
-		} else if ( delta < 0 ) {
-			filterMapByValue(candidates, a => a < getMaxPTForProj(currProj) );
-			candVals = Array.from( candidates.values() );
-			compensatorIx = candVals.indexOf( Math.min(...candVals) );
-		}
-		return Array.from( candidates.keys() )[compensatorIx] || "";
-	}
-
-	function getCompensatorProj(currEmpl, currProj, delta) {
-		// In case of ties, will pick the project listed first in the map.
-		// !! TODO !! resolve the tie based on optimizing budget!
-		var candVals = [],
-			compensatorIx = null,
-			candidates = new Map(temp);
-		candidates.delete(currProj);
-		excludedProj.forEach( function(d) { candidates.delete(d); } );
-		filterMapByValue(candidates, a => a.has(currEmpl) );
-		for ( var [key, value] of candidates.entries() ) {
-			candVals.push( value.get(currEmpl) );
-		}
-		if ( delta > 0 ) {
-			filterMapByValue(candidates, function(a) {
-				for ( var k of a.values() ) { return k => k > 1; }
-			} );
-			compensatorIx = candVals.indexOf( Math.max(...candVals) );
-		} else if ( delta < 0 ) {
-			compensatorIx = candVals.indexOf( Math.min(...candVals) );
-		}
-		return Array.from( candidates.keys() )[compensatorIx] || "";
-	}
-}
-
-function findSkilledEmployees(proj) {}
 
 function isWithinBudget(map, proj) {
 	var totalPT = sum( getProjectData(map, proj) );
@@ -508,24 +348,6 @@ function isWithinBudget(map, proj) {
 	else { return true; }
 }
 
-function computeEmplScore(empl, proj) {
-	var emplObj = getEmplObj(empl);
-	var projObj = getProjObj(proj);
-	var score = 0,
-		skills = false,
-		leadFactor = 1,
-		costPerDay = 0;
-
-	// Check if employee has necessary skill(s) for project
-	for ( let s of projObj.skills ) {
-		if ( emplObj.skills.includes(skill) ) { skills = true; break; }
-	}
-	// Check if employee is project lead
-	if ( projObj.lead === empl ) { leadFactor = 10; }
-
-	score = skills * leadFactor * emplObj.seniority * emplObj.costPerDayZscore;
-	return score;
-}
 
 function getEmplObj(empl) {
 	return employees.find( function(obj) { return obj.username === empl; } );

@@ -99,13 +99,17 @@ def slide_data():
 		out = request.get_json()
 		arrNew = out['arrNew']
 		idx_selected = out['idx_selected']
-		print idx_selected
-		dataList = solve_linear_system(transpose_list(arrNew), costs, skills, idx_selected, totals)
-		# Update dict with new values from constropt
-		print dataDict
-		update_dict_from_list(dataDict, dataList)
-		print dataDict
-		return json.dumps(dataDict)
+		if skills[idx_selected[0]][idx_selected[1]]:
+			dataList = solve_linear_system(transpose_list(arrNew), costs, skills, idx_selected, totals)
+			# Update dict with new values from constropt
+			print dataDict
+			update_dict_from_list(dataDict, dataList)
+			print dataDict
+			return json.dumps(dataDict)
+		else:
+			return json.dumps([])
+
+
 
 # Send optimized data
 @app.route('/optimize_data', methods=['GET'])

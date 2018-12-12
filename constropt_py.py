@@ -54,6 +54,7 @@ def solve_linear_system(emplproj_list, cost_list, skills_list, idx_selected, tot
 	last_row = np.zeros(A.shape[1])
 	last_row[idx_selec] = 1
 	A = np.concatenate((A, [last_row]), axis=0)
+	m, n = A.shape
 
 	# Create right-hand-side vector
 	tot_empl = totals[0]
@@ -67,6 +68,28 @@ def solve_linear_system(emplproj_list, cost_list, skills_list, idx_selected, tot
 	print b
 	x = np.linalg.lstsq(A, b)[0]
 	# x = optimize.nnls(A, b)[0]
+	################################################################
+	# A = matrix(A)
+	# b = matrix(b)
+	# I = matrix(0.0, (n,n))
+	# I[::n+1] = 1.0
+	# G = matrix([-I, matrix(0.0, (1,n)), I])
+	# h = matrix(n*[0.0] + [0.0] + n*[0.0])
+	# # dims = {'l': n, 'q': [n+1], 's': []}
+
+	# sol = solvers.coneqp(P=A.T*A, q=-A.T*b, G=G, h=h, A=A, b=b)
+	# x = []
+	# if sol['status'] is 'optimal':
+	# 	for i in range(0,n):
+	# 		x.append(sol['x'][i])
+	# 	# Check that constraints are satisfied
+	# 	tol = 1e-5
+	# 	new_totals = A * sol['x'] - b
+	# 	for i in range(0,m):
+	# 		assert new_totals[i] < tol
+	# else:
+	# 	print 'No optimal solution found!'
+	################################################################
 
 	# Check that solution satisfies equations
 	assert np.allclose(np.dot(A, x), b)

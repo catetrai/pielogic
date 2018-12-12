@@ -7,6 +7,10 @@
   color:green;
 }
 
+#req-res {
+  margin-right: 200px;
+}
+
 .menu-btn {
   float: left;
   padding: 15px 32px;
