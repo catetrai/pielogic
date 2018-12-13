@@ -66,8 +66,11 @@ def solve_linear_system(emplproj_list, cost_list, skills_list, idx_selected, tot
 	# Compute solution of linear matrix equation
 	print A
 	print b
-	x = np.linalg.lstsq(A, b)[0]
+	# x = np.linalg.lstsq(A, b)[0]
 	# x = optimize.nnls(A, b)[0]
+	lb = np.zeros(n) + 1
+	ub = np.zeros(n) + np.inf
+	x = optimize.lsq_linear(A, b, bounds=(lb, ub))[0]
 	################################################################
 	# A = matrix(A)
 	# b = matrix(b)
