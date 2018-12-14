@@ -70,7 +70,7 @@ def solve_linear_system(emplproj_list, cost_list, skills_list, idx_selected, tot
 	# x = optimize.nnls(A, b)[0]
 	lb = np.zeros(n) + 1
 	ub = np.zeros(n) + np.inf
-	x = optimize.lsq_linear(A, b, bounds=(lb, ub))[0]
+	x = optimize.lsq_linear(A, b, bounds=(lb, ub))['x']
 	################################################################
 	# A = matrix(A)
 	# b = matrix(b)
