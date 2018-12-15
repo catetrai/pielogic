@@ -62,7 +62,7 @@ def transpose_list(mylist):
 	return newlist
 
 def get_totals(mydict):
-	# 'totals' is a list of lists with emplTotals and projTotals.
+	# 'totals' is a tuple constaining two tuples, emplTotals and projTotals.
 	mylist = create_list_from_dict(mydict)
 	totals_empl = []
 	for i in mylist:
@@ -70,7 +70,7 @@ def get_totals(mydict):
 	totals_proj = []
 	for j in transpose_list(mylist):
 		totals_proj.append(sum(j))
-	return [totals_empl, totals_proj]
+	return (tuple(totals_empl), tuple(totals_proj))
 
 
 # Create dataDict variable
@@ -98,17 +98,16 @@ def slide_data():
 		# Get current dict
 		out = request.get_json()
 		arrNew = out['arrNew']
-		idx_selected = out['idx_selected']
-		if skills[idx_selected[0]][idx_selected[1]]:
-			dataList = solve_linear_system(transpose_list(arrNew), costs, skills, idx_selected, totals)
-			# Update dict with new values from constropt
-			print dataDict
-			update_dict_from_list(dataDict, dataList)
+		idx_selected = tuple(out['idx_selected'])
+		sol = solve_linear_system(transpose_list(arrNew), costs, skills, idx_selected, totals)
+		if isinstance(sol, str):
+			# No solution returned
+			return json.dumps(sol)
+		else:
+			# Update dict with new values
+			update_dict_from_list(dataDict, sol)
 			print dataDict
 			return json.dumps(dataDict)
-		else:
-			return json.dumps([])
-
 
 
 # Send optimized data

@@ -144,13 +144,14 @@ var titles = svg.append("svg:text")
   .attr("class", "title") 
   .text(function(d,i) { return projects[i].name; }) 
   .attr("dy", "5px")  
-  .attr("text-anchor", "middle")
+  .attr("text-anchor", "middle");
+  // .attr("fill", "white");
   
 // When clicking on a pie chart, make its sliders appear
 d3.selectAll('svg').on('click', function() {
   // Draw border around selected pie chart
   d3.selectAll("svg").attr("style", "");
-  d3.select(this).attr("style", "border: 1px solid black;");
+  d3.select(this).attr("style", "border: 1px solid white;");
   // Create sliders
   currentProj = d3.select(this).attr('data-id');
   oldValues = getProjectData(projEmplMap, currentProj);
@@ -245,7 +246,7 @@ function createSliderTable() {
 	  .attr('data-id', emplName)
 	  .attr('step', 1)
 	  .attr('min', 1)
-	  .attr('max', getMaxPTForProj(currentProj))
+	  .attr('max', sum(Array.from(projEmplMap_original.get(currentProj).values())) ) // !!! TODO: find reasonable maximum!!!
 	  .attr('value', emplData);
 	// Append slider values
 	tr.append('td')
@@ -297,7 +298,17 @@ function moveSlider() {
 		      contentType: "application/json",
         	  dataType: 'json',
 		      success: function(response) {
-		      	if ( response.length ) {
+		      	if ( typeof response === "string" ) {
+		      		console.log("No solution!");
+		      		switch ( response ) {
+		      			case "NO_SKILL":
+		      				$("#req-res").html(`Sorry, ${currentEmpl} does not have the skillz for this project.`);
+		      				break;
+		      			case "NO_SOLUTION":
+		      				$("#req-res").html(`Cannot change ${currentEmpl}'s work hours.`);
+		      				break;
+		      		}
+		      	} else {
 		      		$("#req-res").html("<br>")
 			      	console.log("Success!");
 	        		projEmplMap = createProjEmplMap(response);
@@ -306,10 +317,7 @@ function moveSlider() {
 					updateSliders();
 					// printEmployeeTable()
 					setStatusMsg();
-				} else {
-					$("#req-res").html(`Sorry, ${currentEmpl} does not have the skillz for this project!`)
 				}
-
 		      },
 		      error: function(xhr) {
 		      	$("#req-res").html("Could not retrieve response!")
@@ -378,6 +386,7 @@ $("#reset-btn").click(function(){
       type: "get",
       success: function(response) {
       	console.log("Success!");
+      	$("#req-res").html("<br>")
       	var parsed_data = JSON.parse(response);
         // $("#req-res").html(response)
         projEmplMap = createProjEmplMap(parsed_data);
@@ -402,6 +411,7 @@ $("#optim-btn").click(function(){
       type: "get",
       success: function(response) {
       	console.log("Success!");
+      	$("#req-res").html("<br>")
       	var parsed_data = JSON.parse(response);
         // $("#req-res").html(response)
         projEmplMap = createProjEmplMap(parsed_data);

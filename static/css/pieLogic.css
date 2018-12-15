@@ -1,14 +1,20 @@
+body {
+  background-color: #4c4b4b;
+}
+
 #status-msg p, span {
   font-size:16px;
   margin-bottom: 30px;
 }
 
 #status-msg span {
-  color:green;
+  color: green;
 }
 
 #req-res {
   margin-right: 200px;
+  margin-left: 300px;
+  color: white;
 }
 
 .menu-btn {
@@ -30,15 +36,11 @@
   background-color: red;
 }
 
-/*#reset-btn {
-  background-color: #555555;
-  color: white;
-}*/
-
 #chart-controls{
   float: left;
   width: 200px;
-  margin-right: 150px;
+  margin-right: 200px;
+  margin-left: 50px;
   padding-top: 0px;
   padding-bottom: 500px;
 }
@@ -59,13 +61,9 @@
   padding-bottom: 500px;
 }
 
-svg {
-  border:0px solid black;
-}
-
 td.edit { 
  padding: 10px; 
- border: thick white solid; 
+ border: thick #4c4b4b solid; 
 }
 
 .edit{
@@ -75,4 +73,8 @@ td.edit {
   color: white;
 }
 
-* {font-family:arial;font-size:11px}
+* {
+  font-family: arial;
+  font-size: 14px;
+  color: white;
+}
