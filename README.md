@@ -1,7 +1,7 @@
 ### Install & run
-1. Install Flask: `pip install Flask`
+1. Clone and cd to repo
 
-2. Clone and cd to repo
+2. Install dependencies: `pip install -r requirements.txt` 
 
 3. Run Flask server: `python json_io.py runserver -d`
 
