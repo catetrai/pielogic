@@ -1,9 +1,6 @@
 import numpy as np
 from cvxopt import matrix, spmatrix, solvers
 from scipy import stats, optimize
-# import time
-
-# start = time.time()
 
 
 def put_solution(mat, vec, ind):
@@ -55,8 +52,8 @@ def solve_linear_system(emplproj_list, cost_list, skills_list, idx_selected, tot
 	b = tot_empl + tot_proj[:-1]
 
 	# Compute least-squares solution of linear matrix equation
-	print A
-	print b
+	print(A)
+	print(b)
 	lb = np.ones(n)
 	ub = np.full(n, np.inf)
 	x = optimize.lsq_linear(A, b, bounds=(lb, ub))['x']
@@ -102,7 +99,7 @@ def create_design_matrix(emplproj_arr, skills_mask, excluded_elem=[]):
 	for i in range(0,nEmpl):
 		temp = np.zeros(N)
 		np.put(temp, mat_ind[i,:], 1)
-		A[i,:] = temp[skills_mask_ind]	
+		A[i,:] = temp[skills_mask_ind]
 	# Project totals
 	for i in range(0,nProj-1):
 		temp = np.zeros(N)
@@ -128,8 +125,6 @@ def constropt(emplproj_list, cost_list, skills_list):
 	tot_proj = np.sum(emplproj_arr, axis=0)
 	tot_empl = np.sum(emplproj_arr, axis=1)
 	b = np.concatenate((tot_empl, tot_proj[:-1]), axis=None)
-
-
 
 	def solve_lp(coeff, A_0, b_0, initvals, solver):
 
@@ -182,7 +177,7 @@ def constropt(emplproj_list, cost_list, skills_list):
 			# Return solution vector
 			return res
 		else:
-			print 'No optimal solution found!'
+			print('No optimal solution found!')
 			return None
 
 	DEBUG = False
@@ -190,99 +185,13 @@ def constropt(emplproj_list, cost_list, skills_list):
 		res = solve_lp(cost_vec, A, b, None, None)
 		if res is not None:
 			new_mat = put_solution(emplproj_arr, res, skills_mask_ind)
-			print 'Original data:'
-			print emplproj_arr
-			print '\nEmployee costs:'
-			print cost_arr
-			print '\nSkills mask:'
-			print skills_mask
-			print '\nConstrained optimization:'
+			print('Original data:')
+			print(emplproj_arr)
+			print('\nEmployee costs:')
+			print(cost_arr)
+			print('\nSkills mask:')
+			print(skills_mask)
+			print('\nConstrained optimization:')
 			np.set_printoptions(precision=0, suppress=True)
-			print new_mat
+			print(new_mat)
 			return new_mat.tolist()
-
-
-# end = time.time()
-# print('Elapsed time: %.5fs' % (end - start))
-
-
-# c = matrix([1., 1., 1., 1., 1.])
-# 's': matrix(1e-100, (5,1))
-# 100:  4.7000e+02  7.9013e+04  3e-20  2e+02  2e+02  1e+02
-# Terminated (maximum number of iterations reached).
-# [[ 120.]
-#  [ 100.]
-#  [ 100.]
-#  [ 100.]
-#  [  50.]]
-
-# c = matrix([1., 1., 1., 1., 1.])
-# 's': matrix(1., (5,1))
-# 7:    4.7000e+02  4.7000e+02  5e-09  5e-09  2e-11  5e-09
-# Optimal solution found.
-# [[ 134.08629067]
-#  [  85.91370933]
-#  [  85.91370933]
-#  [ 100.        ]
-#  [  64.08629067]]
-
-# c = matrix([1., 1., 1., 1., 1.])
-# no primalstart
-# 4:  4.7000e+02  4.7000e+02  5e-06  5e-14  1e-08  1e-08
-# Optimal solution found.
-# [[ 127.5]
-#  [  92.5]
-#  [  92.5]
-#  [ 100. ]
-#  [  57.5]]
-
-
-
-
-
-
-
-  
-# a = np.random.randint(20, 30, size=5)
-# target1 = 30
-# target2 = 0.60
-# K = 26
-
-# A = matrix(np.vstack([np.ones(5), a, np.array([max(x-K,x*x) for x in a])]))
-# A = np.vstack([np.ones(5), a, np.array([max(x-K,x*x) for x in a])])
-# b = matrix([1.0, target1, target2])
-# print A
-
-
-#---------------------------------------------
-
-# from scipy.optimize import linprog, minimize
-
-# guess = [120,100,100,100,50]
-# # costs = [10,5,1,100,50]
-# costs = [90,100,50,70,80]
-
-# fun = lambda x: costs[0]*x[0] + costs[1]*x[1] + costs[2]*x[2] + costs[3]*x[3] + costs[4]*x[4]
-# cons = ({'type': 'ineq', 'fun': lambda x:  x[0] + x[2] - 220},
-#          {'type': 'ineq', 'fun': lambda x: x[1] + x[4] -150},
-#          {'type': 'ineq', 'fun': lambda x: x[0] + x[1] -220},
-#          {'type': 'ineq', 'fun': lambda x: x[2] + x[3] + x[4] -250})
-# bnds = ((0, None), (0, None), (0, None), (0, None), (0, None))
-
-# A_eq = [[1,0,1,0,0],
-# 		[0,1,0,0,1],
-# 		[1,1,0,0,0],
-# 		[0,0,1,1,1]]
-
-# # A_eq = [[1,1,0,0,0],
-# # 		[0,0,1,1,1]]
-
-# b_eq = [220,150,220,250]
-# # b_eq = [220,250]
-
-# # c = [1,1,1,1,1]
-# c = costs
-
-# # x = linprog(c=c, A_eq=A_eq, b_eq=b_eq, method='simplex')
-# res = minimize(fun, guess, method='trust-constr', bounds=bnds, constraints=cons)
-# print res

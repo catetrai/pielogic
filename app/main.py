@@ -1,5 +1,5 @@
 from flask import Flask, render_template, request, jsonify, json
-from constropt_py import constropt, solve_linear_system
+from solvers import constropt, solve_linear_system
 
 app = Flask(__name__)
 
@@ -10,7 +10,9 @@ skills = [[1, 1, 1], [0, 1, 1], [1, 1, 1], [1, 1, 1]]
 # Construct projEmplMap as list of dicts
 # !!! TODO !!! each dict must be sorted alphabetically by empl username!
 def get_init_data():
-	projEmplDict = [
+	""" List of dicts mapping a Project ID (4-digit number) to a
+	    dict of employees usernames and PTs in that project. """
+	return [
 	{
 		"0449": {
 			"backend.jud": 10,
@@ -35,7 +37,6 @@ def get_init_data():
 			"workstu.jil": 50
 		}
 	}]
-	return projEmplDict
 
 
 # Methods for dict <-> list conversion
@@ -43,8 +44,8 @@ def update_dict_from_list(mydict, mylist):
 	proj = 0
 	for obj in mydict:
 		emp = 0
-		for key in sorted(obj.values()[0].keys()):
-			obj.values()[0][key] = mylist[emp][proj]
+		for key in sorted(list(obj.values())[0].keys()):
+			list(obj.values())[0][key] = mylist[emp][proj]
 			emp += 1
 		proj += 1
 	return mydict
@@ -53,13 +54,12 @@ def create_list_from_dict(mydict):
 	# List will be size (nEmpl,nProj)
 	mylist = []
 	for obj in mydict:
-		mylist.append(obj.values()[0].values())
+		mylist.append(list(list(obj.values())[0].values()))
 	return transpose_list(mylist)
 
 def transpose_list(mylist):
 	# Python FTW!!
-	newlist = map(list, zip(*mylist))
-	return newlist
+	return list(zip(*mylist))
 
 def get_totals(mydict):
 	# 'totals' is a tuple constaining two tuples, emplTotals and projTotals.
@@ -76,23 +76,23 @@ def get_totals(mydict):
 # Create dataDict variable
 dataDict = get_init_data()
 totals = get_totals(dataDict)
-print totals
+print(totals)
 
 
 # Render the HTML page
-@app.route("/")
+@app.route('/')
 def output():
 	projEmplDict = get_init_data()
 	return render_template('index.html', initdata=projEmplDict)
 
 # Send original data
-@app.route("/reset_data", methods=['GET'])
+@app.route('/reset', methods=['GET'])
 def reset_data():
 	projEmplDict = get_init_data()
 	return json.dumps(projEmplDict)
 
 # Get slided data and send solved linear system
-@app.route('/slide_data', methods=['GET', 'POST'])
+@app.route('/slide', methods=['GET', 'POST'])
 def slide_data():
 	if request.method == 'POST':
 		# Get current dict
@@ -106,12 +106,12 @@ def slide_data():
 		else:
 			# Update dict with new values
 			update_dict_from_list(dataDict, sol)
-			print dataDict
+			print(dataDict)
 			return json.dumps(dataDict)
 
 
 # Send optimized data
-@app.route('/optimize_data', methods=['GET'])
+@app.route('/optimize', methods=['GET'])
 def optimize_data():
 	# Get current dict
 	dataDict = get_init_data()
@@ -120,9 +120,5 @@ def optimize_data():
 	dataList = constropt(emplproj, costs, skills)
 	# Update dict with new values from constropt
 	update_dict_from_list(dataDict, dataList)
-	print dataDict
+	print(dataDict)
 	return json.dumps(dataDict)
-
-
-if __name__ == "__main__":
-	app.run(host='127.0.0.1', port=8090)
