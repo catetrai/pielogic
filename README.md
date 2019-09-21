@@ -3,28 +3,18 @@ Playground for Flask, D3.js, and optimization problems
 ### Installation
 #### Run in Python virtual environment
 1. Install the python3-venv package: sudo apt-get install python3-venv
-
 2. Clone and cd to this repo
-
 3. Create a virtual environment: `python3 -m venv .`
-
 4. Activate the virtual environment: `source ./bin/activate`
-
 5. Install dependencies: `pip install -r requirements.txt` 
-
 6. Set environment variable with name of app file: `export FLASK_APP=main.py`
-
 7. Run Flask development server: `flask run`
-
 8. Go to `http://localhost:5000/`
 
 #### Run in Docker container
 1. Clone and cd to this repo
-
 2. Build image from Dockerfile (warning: it's 1.2GB): `docker build -t pielogic ./`
-
 3. Run container: `sudo docker run -d --name pielogic -p 5000:5000 -e PORT="5000" pielogic`
-
 4. Go to `http://<docker-host>:5000/`
 
 ### Problem formulation
